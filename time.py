@@ -27,10 +27,6 @@ def get_time_seconds():
 def print_values(values):
     for x in values:
     	print(x)
-def write_file(value):
-    f = open('time.txt','w')
-    f.write(value+"\n")
-    f.close;
     #print("\n------ MEASUREMENT ------")
     #print("TEMP Analog: ", values[1],"\n")
     #print("BMP Atlitude: ", values[1:2],"\n")
@@ -47,7 +43,7 @@ class ReadFromArduino(object):
     """A class to read the serial messages from Arduino. The code running on Arduino
     can for example be the ArduinoSide_LSM9DS0 sketch."""
 
-    def __init__(self, port, SIZE_STRUCT=28, verbose=0):
+    def __init__(self, port, SIZE_STRUCT=4, verbose=0):
         self.port = port
         self.millis = get_time_millis()
         self.SIZE_STRUCT = SIZE_STRUCT
@@ -57,12 +53,13 @@ class ReadFromArduino(object):
         self.t = 0
 
         self.port.flushInput()
-
+   
+    
     def read_one_value(self):
         """Wait for next serial message from the Arduino, and read the whole
         message as a structure."""
         read = False
-
+	
         while not read:
             myByte = self.port.read(1)
             if myByte == 'S':
@@ -72,7 +69,7 @@ class ReadFromArduino(object):
                     self.t = (get_time_millis() - self.t_init) / 1000.0
 
                     # is  a valid message struct
-                    new_values = struct.unpack('<fffffff', data)
+                    new_values = struct.unpack('<f', data)
 
                     current_time = get_time_millis()
                     time_elapsed = current_time - self.millis
@@ -85,9 +82,10 @@ class ReadFromArduino(object):
                     if self.verbose > 1:
                         print("Time elapsed since last (ms): " + str(time_elapsed))
                         print_values(new_values)
-
-                    return(True)
-
+			f = open("time_system.txt","a+")
+			f.write("%d\n" % new_values)
+			f.close
+                    return(True)		
         return(False)
 
 
@@ -98,10 +96,12 @@ usb_port = serial.Serial('/dev/ttyUSB0', baudrate=9600)
 read_from_Arduino_instance = ReadFromArduino(usb_port, verbose=6)
 read_from_Arduino_instance.read_one_value()
 np.array(read_from_Arduino_instance.latest_values)
+i = 0
 while True:
     read_from_Arduino_instance.read_one_value()
-
-
+    i = i + 1
+    if i > 1000:
+	exit()
 """
 ################################################################################
 # measure noise of sensor (for LSM9DS0)
