@@ -47,7 +47,7 @@ class ReadFromArduino(object):
     """A class to read the serial messages from Arduino. The code running on Arduino
     can for example be the ArduinoSide_LSM9DS0 sketch."""
 
-    def __init__(self, port, SIZE_STRUCT=28, verbose=0):
+    def __init__(self, port, SIZE_STRUCT=4, verbose=0):
         self.port = port
         self.millis = get_time_millis()
         self.SIZE_STRUCT = SIZE_STRUCT
@@ -72,7 +72,7 @@ class ReadFromArduino(object):
                     self.t = (get_time_millis() - self.t_init) / 1000.0
 
                     # is  a valid message struct
-                    new_values = struct.unpack('<fffffff', data)
+                    new_values = struct.unpack('<f', data)
 
                     current_time = get_time_millis()
                     time_elapsed = current_time - self.millis
@@ -83,8 +83,7 @@ class ReadFromArduino(object):
                     self.latest_values = np.array(new_values)
                    
                     if self.verbose > 1:
-                        print("Time elapsed since last (ms): " + str(time_elapsed))
-                        print_values(new_values)
+                        print("Time elapsed since last (ms): " + str(time_elapsed))	                        print_values(new_values)
 
                     return(True)
 
