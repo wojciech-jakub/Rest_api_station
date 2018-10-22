@@ -56,12 +56,12 @@ void set_IMU_data(float time_) {
 void setup()
 {
   Serial.begin(9600);
-//  dht11.begin();
+  //  dht11.begin();
   Wire.begin();
-    Serial.print(F("size of struct: "));
+  Serial.print(F("size of struct: "));
   Serial.print(len_struct);
   Serial.println();
-    dht22.begin();
+  dht22.begin();
 
   if (!bme.begin(0x76)) {  
     Serial.println("Could not find a valid BMP280 sensor, check wiring!");
