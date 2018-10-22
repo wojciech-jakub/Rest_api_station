@@ -6,10 +6,8 @@ import numpy as np
 import serial
 
 def look_for_available_ports():
-    '''
-    find available serial ports to Arduino
-    '''
-    available_ports = glob.glob('/dev/ttyUSB0')
+
+    available_ports = glob.glob('/dev/ttyUSB*')
     print("Available porst: ")
     print(available_ports)
 
@@ -27,7 +25,6 @@ def get_time_seconds():
 def print_values(values):
     for x in values:
     	print(x)
-
 
 
 class ReadFromArduino(object):
@@ -56,7 +53,6 @@ class ReadFromArduino(object):
                 if myByte == 'E':
                     self.t = (get_time_millis() - self.t_init) / 1000.0
 
-                    # is  a valid message struct
                     new_values = struct.unpack('<f', data)
 
                     current_time = get_time_millis()
@@ -70,9 +66,11 @@ class ReadFromArduino(object):
                     if self.verbose > 1:
                         print("Time elapsed since last (ms): " + str(time_elapsed))
                         print_values(new_values)
+
             			f = open("time_system.txt","a+")
             			f.write("%d\n" % new_values)
             			f.close
+
                     return(True)
         return(False)
 
