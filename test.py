@@ -4,6 +4,11 @@ import struct
 import time
 import numpy as np
 import serial
+import time
+import json
+import firebase_admin
+from firebase_admin import db
+from firebase_admin import credentials 
 
 def look_for_available_ports():
     '''
@@ -23,14 +28,34 @@ def get_time_millis():
 def get_time_seconds():
     return(int(round(time.time() * 1000000)))
 
+def save_db(data):
+    ref = db.reference('server/saving-data/fireblog')
+    users_ref = ref.child('users')
+    users_ref.set(data)
 
 def print_values(values):
-    for x in values:
-    	print(x)
-def write_file(value):
-    f = open('time.txt','w')
-    f.write(value+"\n")
-    f.close;
+    x = {
+	"timestamp" : time.time(),
+	"measurement" : {
+		"analog":{
+				"temperature" : values[0]	
+			},
+		"bm280" :{
+				"atlitude": values[1],
+				"temperature": values[4],
+				"pressure": values[6]
+			},
+		"dht22" :{
+				"temperature":values[3],
+				"humidity":values[2]
+			},
+		"gy30" :{
+				"lux": values[5]
+			},
+	}
+    }
+    save_db(x);
+    print(values)
     #print("\n------ MEASUREMENT ------")
     #print("TEMP Analog: ", values[1],"\n")
     #print("BMP Atlitude: ", values[1:2],"\n")
@@ -44,8 +69,6 @@ def write_file(value):
 
 
 class ReadFromArduino(object):
-    """A class to read the serial messages from Arduino. The code running on Arduino
-    can for example be the ArduinoSide_LSM9DS0 sketch."""
 
     def __init__(self, port, SIZE_STRUCT=28, verbose=0):
         self.port = port
@@ -55,7 +78,8 @@ class ReadFromArduino(object):
         self.latest_values = -1
         self.t_init = get_time_millis()
         self.t = 0
-
+	cred = credentials.Certificate("first_app.json")
+	firebase_admin.initialize_app(cred, {'databaseURL': 'https://first-app-84b8e.firebaseio.com'})
         self.port.flushInput()
 
     def read_one_value(self):
@@ -85,7 +109,7 @@ class ReadFromArduino(object):
                     if self.verbose > 1:
                         print("Time elapsed since last (ms): " + str(time_elapsed))
                         print_values(new_values)
-
+			
                     return(True)
 
         return(False)
