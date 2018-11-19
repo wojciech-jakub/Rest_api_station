@@ -65,7 +65,7 @@ class ReadFromArduino(object):
         self.t_init = get_time_millis()
         self.t = 0
 	cred = credentials.Certificate("first_app.json")
-	firebase_admin.initialize_app(cred, {'databaseURL': 'https://first-app-84b8e.firebaseio.com'})
+	firebase_admin.initialize_app(cred, {'databaseURL': '****'})
         self.port.flushInput()
 
     def read_one_value(self):
